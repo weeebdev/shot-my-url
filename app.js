@@ -22,7 +22,7 @@ app.get("/", function (req, res) {
     console.log("Screenshotting: " + urlToScreenshot);
     (async () => {
       const browser = await puppeteer.launch({
-        executablePath: "/usr/bin/chromium",
+        executablePath: process.env.ON_HEROKU ? null : "/usr/bin/chromium",
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
       });
 
