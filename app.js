@@ -41,6 +41,7 @@ app.get("/", function (req, res) {
 });
 
 app.get("/hello", (req, res) => {
+  console.log(process.env.ON_HEROKU);
   res.send("Hello, world");
 });
 
