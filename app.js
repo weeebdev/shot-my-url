@@ -3,6 +3,7 @@ const app = express();
 const puppeteer = require("puppeteer");
 const port = process.env.PORT || 8080;
 const validUrl = require("valid-url");
+const path = require("path");
 
 var parseUrl = function (url) {
   url = decodeURIComponent(url);
@@ -16,33 +17,31 @@ var parseUrl = function (url) {
 app.get("/", function (req, res) {
   var urlToScreenshot = parseUrl(req.query.url);
 
-  console.log(puppeteer.executablePath());
-
   if (validUrl.isWebUri(urlToScreenshot)) {
-    console.log("Screenshotting: " + urlToScreenshot);
     (async () => {
       const browser = await puppeteer.launch({
         executablePath: process.env.ON_HEROKU ? null : "/usr/bin/chromium",
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
       });
 
-      const page = await browser.newPage();
-      await page.goto(urlToScreenshot);
-      await page.screenshot().then(function (buffer) {
-        res.set({ "Content-Type": "image/png" });
-        res.send(buffer);
-      });
+      res.set({ "Content-Type": "image/png" });
+
+      try {
+        const page = await browser.newPage();
+        await page.goto(urlToScreenshot);
+        await page.screenshot().then(function (buffer) {
+          res.send(buffer);
+        });
+      } catch (err) {
+        console.error(err);
+        res.sendFile("qEfv0Iok.jpg", { root: path.join(__dirname, "/img") });
+      }
 
       await browser.close();
     })();
   } else {
     res.send("Invalid url: " + urlToScreenshot);
   }
-});
-
-app.get("/hello", (req, res) => {
-  console.log(process.env.ON_HEROKU);
-  res.send("Hello, world");
 });
 
 app.listen(port, function () {
