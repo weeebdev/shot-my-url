@@ -1,4 +1,4 @@
-# headless-chrome
-Headless chrome using Puppeteer that can run on Heroku
+# Shot my url
+Headless chrome screenshot taker using Puppeteer that can run on Heroku
 
-Blog Post: https://timleland.com/headless-chrome-on-heroku/
+![](https://shot-my-url.herokuapp.com/?url=https://github.com/weeebdev/shot-my-url)
