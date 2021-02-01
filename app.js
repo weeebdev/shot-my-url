@@ -15,19 +15,32 @@ var parseUrl = function (url) {
 };
 
 app.get("/", function (req, res) {
-  var urlToScreenshot = parseUrl(req.query.url);
+  const { url, device, timeout, width, height } = req.query;
+
+  var urlToScreenshot = parseUrl(url);
 
   if (validUrl.isWebUri(urlToScreenshot)) {
     (async () => {
       const browser = await puppeteer.launch({
         executablePath: process.env.ON_HEROKU ? null : "/usr/bin/chromium",
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        defaultViewport: {
+          width: parseInt(width) ? parseInt(width) : 800,
+          height: parseInt(height) ? parseInt(height) : 600,
+        },
       });
 
       res.set({ "Content-Type": "image/png" });
 
       try {
         const page = await browser.newPage();
+
+        if (Number.parseInt(timeout))
+          page.setDefaultNavigationTimeout(Number.parseInt(timeout));
+
+        if (puppeteer.devices[device])
+          await page.emulate(puppeteer.devices[device]);
+
         await page.goto(urlToScreenshot);
         await page.screenshot().then(function (buffer) {
           res.send(buffer);
